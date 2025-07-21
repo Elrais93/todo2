@@ -130,5 +130,146 @@
     <div id="notai-list"></div>
   </div>
 
+<script>
+    const binId = "687e71a6f7e7a370d1eb8b22";
+    const apiKey = "$2a$10$Md6VkH9DumOOt1wRt2a12.GUYC93jCZfq3loK5SHaPy7DXiCTuHoW";
+    let data = {};
+    let currentUser = null;
+
+    async function fetchData() {
+      const res = await fetch(`https://api.jsonbin.io/v3/b/${binId}/latest`, {
+        headers: { 'X-Master-Key': apiKey }
+      });
+      const json = await res.json();
+      data = json.record;
+      render();
+    }
+
+    async function updateData() {
+      await fetch(`https://api.jsonbin.io/v3/b/${binId}`, {
+        method: "PUT",
+        headers: {
+          'Content-Type': 'application/json',
+          'X-Master-Key': apiKey
+        },
+        body: JSON.stringify(data)
+      });
+    }
+
+    function login() {
+      const user = document.getElementById("username").value.trim();
+      const pass = document.getElementById("password").value;
+      const found = data.utenti.find(u => u.nome === user && u.password === pass);
+      if (found) {
+        currentUser = user;
+        document.getElementById("login-screen").classList.add("hidden");
+        document.getElementById("main-screen").classList.remove("hidden");
+        document.getElementById("logged-user").innerText = currentUser;
+        render();
+      } else {
+        alert("Credenziali non valide");
+      }
+    }
+
+    function logout() {
+      location.reload();
+    }
+
+    function addNotaio() {
+      const name = document.getElementById("notaio-name").value.trim();
+      if (!name) return;
+      const now = new Date();
+      const timestamp = now.toLocaleDateString() + " " + now.toLocaleTimeString();
+      data.notai.push({ nome: name, creato_il: timestamp, hardware: [], software: [] });
+      updateData();
+      render();
+    }
+
+    function deleteNotaio(index) {
+      if (confirm("Sei sicuro di voler eliminare questo notaio?")) {
+        data.notai.splice(index, 1);
+        updateData();
+        render();
+      }
+    }
+
+    function addTask(notaioIndex, sezione) {
+      const inputId = `task-input-${sezione}-${notaioIndex}`;
+      const task = document.getElementById(inputId).value.trim();
+      if (!task) return;
+      data.notai[notaioIndex][sezione].push({
+        attivita: task,
+        completato: false,
+        modificato_da: currentUser
+      });
+      showSections(notaioIndex);
+      updateData();
+      render();
+    }
+
+    function toggleTask(notaioIndex, sezione, taskIndex) {
+      let t = data.notai[notaioIndex][sezione][taskIndex];
+      t.completato = !t.completato;
+      t.modificato_da = currentUser;
+      updateData();
+      render();
+    }
+
+    function deleteTask(notaioIndex, sezione, taskIndex) {
+      data.notai[notaioIndex][sezione].splice(taskIndex, 1);
+      updateData();
+      render();
+    }
+
+    function toggleNotaioSection(index) {
+      const sections = document.querySelectorAll(`.notaio-section-${index}`);
+      sections.forEach(section => {
+        section.classList.toggle("show");
+      });
+    }
+
+    function render() {
+      const container = document.getElementById("notai-list");
+      container.innerHTML = "";
+      data.notai.forEach((notaio, idx) => {
+        const box = document.createElement("div");
+        box.className = "notaio";
+        const nomeCompleto = notaio.creato_il 
+          ? `${notaio.nome.toUpperCase()} (${notaio.creato_il})`
+          : `${notaio.nome.toUpperCase()}`;
+        box.innerHTML = `<h3><span class="notaio-title" onclick="toggleNotaioSection(${idx})">${nomeCompleto}</span> <button onclick="deleteNotaio(${idx})">❌</button></h3>`;
+
+        ["hardware", "software"].forEach(section => {
+          const sec = document.createElement("div");
+          sec.className = `task-section notaio-section-${idx}`;
+          sec.dataset.type = section;
+          sec.innerHTML = `<h4>${section.toUpperCase()}</h4>`;
+
+          notaio[section].forEach((task, tIdx) => {
+            const row = document.createElement("div");
+            row.className = "task";
+            row.innerHTML = `
+              <label><input type="checkbox" ${task.completato ? "checked" : ""} onchange="toggleTask(${idx}, '${section}', ${tIdx})">
+              <span style="text-decoration:${task.completato ? 'line-through' : 'none'}">${task.attivita}</span></label>
+              <small> (${task.modificato_da})</small>
+              <button onclick="deleteTask(${idx}, '${section}', ${tIdx})">❌</button>
+            `;
+            sec.appendChild(row);
+          });
+
+          sec.innerHTML += `
+            <input type="text" id="task-input-${section}-${idx}" placeholder="Nuovo task ${section}" />
+            <button onclick="addTask(${idx}, '${section}')">➕ Aggiungi</button>
+          `;
+
+          box.appendChild(sec);
+        });
+
+        container.appendChild(box);
+      });
+    }
+
+    fetchData();
+</script>
 </body>
 </html>
