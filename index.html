@@ -4,36 +4,95 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>ToDo Notai</title>
+  <link rel="apple-touch-icon" href="https://i.ibb.co/MxxLbP0D/Chat-GPT-Image-Jul-21-2025-07-19-15-PM.png">
   <style>
-    body { font-family: sans-serif; padding: 20px; background: #f0f0f0; }
+    body {
+      font-family: "Segoe UI", sans-serif;
+      padding: 20px;
+      background: #f8fbfd;
+      font-size: 0.7rem;
+      color: #111;
+    }
     .hidden { display: none; }
-    .notaio, .task-section { background: #fff; padding: 10px; margin-bottom: 15px; border-radius: 6px; }
-    .task { margin: 5px 0; display: flex; justify-content: space-between; }
+    .notaio, .task-section {
+      background: #ffffff;
+      padding: 10px;
+      margin-bottom: 15px;
+      border-radius: 8px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+    }
+    .task {
+      margin: 5px 0;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
     .task span { flex: 1; }
     .task input[type="checkbox"] { margin-right: 10px; }
-    button { margin: 5px; }
+    button {
+      margin: 5px;
+      background-color: #e0f1ff;
+      color: #004b7c;
+      border: 1px solid #b3d9f5;
+      border-radius: 5px;
+      padding: 3px 8px;
+      font-size: 0.7rem;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #d0e9ff;
+    }
     .task-section { display: none; }
     h3 button { float: right; }
-    h3 span.notaio-title { cursor: pointer; display: inline-block; text-transform: uppercase; }
+    h3 span.notaio-title {
+      cursor: pointer;
+      display: inline-block;
+      text-transform: uppercase;
+      font-weight: 600;
+      color: #004b7c;
+    }
+    #logo {
+      width: 120px;
+      display: block;
+      margin: 0 auto 10px;
+    }
+    .section-title {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .section-title h2 {
+      margin: 0;
+      font-size: 1rem;
+      color: #004b7c;
+    }
+    .section-title img {
+      width: 28px;
+      height: 28px;
+    }
   </style>
 </head>
 <body>
 
   <div id="login-screen">
-    <h2>Login</h2>
+    <img id="logo" src="https://i.ibb.co/MxxLbP0D/Chat-GPT-Image-Jul-21-2025-07-19-15-PM.png" alt="Logo ToDo Notai" />
+    <h2 style="text-align:center; color:#004b7c">Login</h2>
     <input type="text" id="username" placeholder="Username" /><br>
     <input type="password" id="password" placeholder="Password" /><br>
-    <button onclick="login()">Accedi</button>
+    <button onclick="login()">🔐 Accedi</button>
   </div>
 
   <div id="main-screen" class="hidden">
-    <h2>ToDo Installazioni Notai</h2>
+    <div class="section-title">
+      <img src="https://i.ibb.co/MxxLbP0D/Chat-GPT-Image-Jul-21-2025-07-19-15-PM.png" alt="logo" />
+      <h2>ToDo Installazioni Notai</h2>
+    </div>
     <p>Utente loggato: <strong id="logged-user"></strong></p>
-    <button onclick="logout()">Logout</button>
+    <button onclick="logout()">🚪 Logout</button>
 
-    <h3>Aggiungi Notaio</h3>
+    <h3>➕ Aggiungi Notaio</h3>
     <input type="text" id="notaio-name" placeholder="Nome notaio" />
-    <button onclick="addNotaio()">Aggiungi</button>
+    <button onclick="addNotaio()">📁 Aggiungi</button>
 
     <div id="notai-list"></div>
   </div>
@@ -141,7 +200,9 @@
       data.notai.forEach((notaio, idx) => {
         const box = document.createElement("div");
         box.className = "notaio";
-        const nomeCompleto = `${notaio.nome.toUpperCase()} (${notaio.creato_il || "DATA NON DISPONIBILE"})`;
+        const nomeCompleto = notaio.creato_il 
+          ? `${notaio.nome.toUpperCase()} (${notaio.creato_il})`
+          : `${notaio.nome.toUpperCase()}`;
         box.innerHTML = `<h3><span class="notaio-title" onclick="toggleNotaioSection(${idx})">${nomeCompleto}</span> <button onclick="deleteNotaio(${idx})">❌</button></h3>`;
 
         ["hardware", "software"].forEach(section => {
@@ -163,7 +224,7 @@
 
           sec.innerHTML += `
             <input type="text" id="task-input-${section}-${idx}" placeholder="Nuovo task ${section}" />
-            <button onclick="addTask(${idx}, '${section}')">Aggiungi</button>
+            <button onclick="addTask(${idx}, '${section}')">➕ Aggiungi</button>
           `;
 
           box.appendChild(sec);
