@@ -249,9 +249,12 @@
           notaio[section].forEach((task, tIdx) => {
             const row = document.createElement("div");
             row.className = "task";
+            const taskText = task.attivita.match(/https?:\/\//)
+              ? `<a href="${task.attivita}" target="_blank">${task.attivita}</a>`
+              : task.attivita;
             row.innerHTML = `
               <label><input type="checkbox" ${task.completato ? "checked" : ""} onchange="toggleTask(${idx}, '${section}', ${tIdx})">
-              <span style="text-decoration:${task.completato ? 'line-through' : 'none'}">${task.attivita}</span></label>
+              <span style="text-decoration:${task.completato ? 'line-through' : 'none'}">${taskText}</span></label>
               <small> (${task.modificato_da})</small>
               <button onclick="deleteTask(${idx}, '${section}', ${tIdx})">❌</button>
             `;
@@ -268,7 +271,9 @@
 
         container.appendChild(box);
       });
+    });
     }
+
     fetchData();
 </script>
 </body>
