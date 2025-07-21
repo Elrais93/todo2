@@ -86,7 +86,9 @@
     function addNotaio() {
       const name = document.getElementById("notaio-name").value.trim();
       if (!name) return;
-      data.notai.push({ nome: name, hardware: [], software: [] });
+      const now = new Date();
+      const timestamp = now.toLocaleDateString() + " " + now.toLocaleTimeString();
+      data.notai.push({ nome: name, creato_il: timestamp, hardware: [], software: [] });
       updateData();
       render();
     }
@@ -139,7 +141,8 @@
       data.notai.forEach((notaio, idx) => {
         const box = document.createElement("div");
         box.className = "notaio";
-        box.innerHTML = `<h3><span class="notaio-title" onclick="toggleNotaioSection(${idx})">${notaio.nome.toUpperCase()}</span> <button onclick="deleteNotaio(${idx})">❌</button></h3>`;
+        const nomeCompleto = `${notaio.nome.toUpperCase()} (${notaio.creato_il || "DATA NON DISPONIBILE"})`;
+        box.innerHTML = `<h3><span class="notaio-title" onclick="toggleNotaioSection(${idx})">${nomeCompleto}</span> <button onclick="deleteNotaio(${idx})">❌</button></h3>`;
 
         ["hardware", "software"].forEach(section => {
           const sec = document.createElement("div");
