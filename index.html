@@ -58,6 +58,9 @@
       border-top: 1px solid #c6e2f8;
       margin-top: 10px;
     }
+    .task-section.show {
+      display: block !important;
+    }
     .task-section h4 {
       margin-top: 10px;
       padding: 5px;
@@ -93,6 +96,14 @@
       height: 28px;
     }
   </style>
+  <script>
+    function showSections(index) {
+      const hardware = document.querySelector(`.notaio-section-${index}[data-type='hardware']`);
+      const software = document.querySelector(`.notaio-section-${index}[data-type='software']`);
+      if (hardware) hardware.classList.add("show");
+      if (software) software.classList.add("show");
+    }
+  </script>
 </head>
 <body>
 
@@ -119,7 +130,5 @@
     <div id="notai-list"></div>
   </div>
 
-  <!-- JavaScript invariato -->
-  <!-- ... (il codice JS rimane invariato) ... -->
 </body>
 </html>
