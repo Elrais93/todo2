@@ -254,7 +254,7 @@
               : task.attivita;
             row.innerHTML = `
               <label><input type="checkbox" ${task.completato ? "checked" : ""} onchange="toggleTask(${idx}, '${section}', ${tIdx})">
-              <span style="text-decoration:${task.completato ? 'line-through' : 'none'}">${taskText}</span></label>
+              <span style=\"text-decoration:${task.completato ? 'line-through' : 'none'}; word-break: break-word; display: inline-block; max-width: 100%;\">${taskText}</span></label>
               <small> (${task.modificato_da})</small>
               <button onclick="deleteTask(${idx}, '${section}', ${tIdx})">❌</button>
             `;
