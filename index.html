@@ -88,6 +88,14 @@
       render();
     }
 
+    function deleteNotaio(index) {
+      if (confirm("Sei sicuro di voler eliminare questo notaio?")) {
+        data.notai.splice(index, 1);
+        updateData();
+        render();
+      }
+    }
+
     function addTask(notaioIndex, sezione) {
       const inputId = `task-input-${sezione}-${notaioIndex}`;
       const task = document.getElementById(inputId).value.trim();
@@ -121,7 +129,7 @@
       data.notai.forEach((notaio, idx) => {
         const box = document.createElement("div");
         box.className = "notaio";
-        box.innerHTML = `<h3>${notaio.nome}</h3>`;
+        box.innerHTML = `<h3>${notaio.nome} <button onclick="deleteNotaio(${idx})">❌</button></h3>`;
 
         ["hardware", "software"].forEach(section => {
           const sec = document.createElement("div");
