@@ -12,6 +12,9 @@
     .task span { flex: 1; }
     .task input[type="checkbox"] { margin-right: 10px; }
     button { margin: 5px; }
+    .task-section { display: none; }
+    h3 button { float: right; }
+    h3 span.notaio-title { cursor: pointer; display: inline-block; text-transform: uppercase; }
   </style>
 </head>
 <body>
@@ -123,17 +126,24 @@
       render();
     }
 
+    function toggleNotaioSection(index) {
+      const sections = document.querySelectorAll(`.notaio-section-${index}`);
+      sections.forEach(section => {
+        section.style.display = section.style.display === "none" ? "block" : "none";
+      });
+    }
+
     function render() {
       const container = document.getElementById("notai-list");
       container.innerHTML = "";
       data.notai.forEach((notaio, idx) => {
         const box = document.createElement("div");
         box.className = "notaio";
-        box.innerHTML = `<h3>${notaio.nome} <button onclick="deleteNotaio(${idx})">❌</button></h3>`;
+        box.innerHTML = `<h3><span class="notaio-title" onclick="toggleNotaioSection(${idx})">${notaio.nome.toUpperCase()}</span> <button onclick="deleteNotaio(${idx})">❌</button></h3>`;
 
         ["hardware", "software"].forEach(section => {
           const sec = document.createElement("div");
-          sec.className = "task-section";
+          sec.className = `task-section notaio-section-${idx}`;
           sec.innerHTML = `<h4>${section.toUpperCase()}</h4>`;
 
           notaio[section].forEach((task, tIdx) => {
