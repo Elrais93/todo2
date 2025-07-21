@@ -231,6 +231,15 @@
     function render() {
       const container = document.getElementById("notai-list");
       container.innerHTML = "";
+
+      const openSections = {};
+      document.querySelectorAll('.task-section.show').forEach(el => {
+        const index = [...el.classList].find(c => c.startsWith('notaio-section-')).split('-').pop();
+        const type = el.dataset.type;
+        if (!openSections[index]) openSections[index] = [];
+        openSections[index].push(type);
+      });
+
       data.notai.forEach((notaio, idx) => {
         const box = document.createElement("div");
         box.className = "notaio";
@@ -243,6 +252,11 @@
           const sec = document.createElement("div");
           sec.className = `task-section notaio-section-${idx}`;
           sec.dataset.type = section;
+
+          if (openSections[idx] && openSections[idx].includes(section)) {
+            sec.classList.add("show");
+          }
+
           sec.innerHTML = `<h4>${section.toUpperCase()}</h4>`;
 
           notaio[section].forEach((task, tIdx) => {
