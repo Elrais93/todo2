@@ -232,31 +232,18 @@
       const container = document.getElementById("notai-list");
       container.innerHTML = "";
 
-      const openSections = {};
-      document.querySelectorAll('.task-section.show').forEach(el => {
-        const index = [...el.classList].find(c => c.startsWith('notaio-section-')).split('-').pop();
-        const type = el.dataset.type;
-        if (!openSections[index]) openSections[index] = [];
-        openSections[index].push(type);
-      });
-
       data.notai.forEach((notaio, idx) => {
         const box = document.createElement("div");
         box.className = "notaio";
         const nomeCompleto = notaio.creato_il 
           ? `${notaio.nome.toUpperCase()} (${notaio.creato_il})`
           : `${notaio.nome.toUpperCase()}`;
-        box.innerHTML = `<h3><span class="notaio-title" onclick="toggleNotaioSection(${idx})">${nomeCompleto}</span> <button onclick="deleteNotaio(${idx})">❌</button></h3>`;
+        box.innerHTML = `<h3><span class="notaio-title">${nomeCompleto}</span> <button onclick="toggleNotaioSection(${idx})">🔽 Apri/Chiudi</button> <button onclick="deleteNotaio(${idx})">❌</button></h3>`;
 
         ["hardware", "software"].forEach(section => {
           const sec = document.createElement("div");
-          sec.className = `task-section notaio-section-${idx}`;
+          sec.className = `task-section notaio-section-${idx} show`;
           sec.dataset.type = section;
-
-          if (openSections[idx] && openSections[idx].includes(section)) {
-            sec.classList.add("show");
-          }
-
           sec.innerHTML = `<h4>${section.toUpperCase()}</h4>`;
 
           notaio[section].forEach((task, tIdx) => {
@@ -280,6 +267,7 @@
         });
 
         container.appendChild(box);
+      });
       });
     }
 
