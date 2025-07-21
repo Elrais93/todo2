@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ToDo Notai</title>
+  <style>
+    body { font-family: sans-serif; padding: 20px; background: #f0f0f0; }
+    .hidden { display: none; }
+    .notaio, .task-section { background: #fff; padding: 10px; margin-bottom: 15px; border-radius: 6px; }
+    .task { margin: 5px 0; display: flex; justify-content: space-between; }
+    .task span { flex: 1; }
+    .task input[type="checkbox"] { margin-right: 10px; }
+    button { margin: 5px; }
+  </style>
+</head>
+<body>
+
+  <div id="login-screen">
+    <h2>Login</h2>
+    <input type="text" id="username" placeholder="Username" /><br>
+    <input type="password" id="password" placeholder="Password" /><br>
+    <button onclick="login()">Accedi</button>
+  </div>
+
+  <div id="main-screen" class="hidden">
+    <h2>ToDo Installazioni Notai</h2>
+    <p>Utente loggato: <strong id="logged-user"></strong></p>
+    <button onclick="logout()">Logout</button>
+
+    <h3>Aggiungi Notaio</h3>
+    <input type="text" id="notaio-name" placeholder="Nome notaio" />
+    <button onclick="addNotaio()">Aggiungi</button>
+
+    <div id="notai-list"></div>
+  </div>
+
+  <script>
+    const binId = "687e71a6f7e7a370d1eb8b22";
+    const apiKey = "$2a$10$Md6VkH9DumOOt1wRt2a12.GUYC93jCZfq3loK5SHaPy7DXiCTuHoW";
+    let data = {};
+    let currentUser = null;
+
+    async function fetchData() {
+      const res = await fetch(`https://api.jsonbin.io/v3/b/${binId}/latest`, {
+        headers: { 'X-Master-Key': apiKey }
+      });
+      const json = await res.json();
+      data = json.record;
+      render();
+    }
+
+    async function updateData() {
+      await fetch(`https://api.jsonbin.io/v3/b/${binId}`, {
+        method: "PUT",
+        headers: {
+          'Content-Type': 'application/json',
+          'X-Master-Key': apiKey
+        },
+        body: JSON.stringify(data)
+      });
+    }
+
+    function login() {
+      const user = document.getElementById("username").value.trim();
+      const pass = document.getElementById("password").value;
+      const found = data.utenti.find(u => u.nome === user && u.password === pass);
+      if (found) {
+        currentUser = user;
+        document.getElementById("login-screen").classList.add("hidden");
+        document.getElementById("main-screen").classList.remove("hidden");
+        document.getElementById("logged-user").innerText = currentUser;
+        render();
+      } else {
+        alert("Credenziali non valide");
+      }
+    }
+
+    function logout() {
+      location.reload();
+    }
+
+    function addNotaio() {
+      const name = document.getElementById("notaio-name").value.trim();
+      if (!name) return;
+      data.notai.push({ nome: name, hardware: [], software: [] });
+      updateData();
+      render();
+    }
+
+    function addTask(notaioIndex, sezione) {
+      const inputId = `task-input-${sezione}-${notaioIndex}`;
+      const task = document.getElementById(inputId).value.trim();
+      if (!task) return;
+      data.notai[notaioIndex][sezione].push({
+        attivita: task,
+        completato: false,
+        modificato_da: currentUser
+      });
+      updateData();
+      render();
+    }
+
+    function toggleTask(notaioIndex, sezione, taskIndex) {
+      let t = data.notai[notaioIndex][sezione][taskIndex];
+      t.completato = !t.completato;
+      t.modificato_da = currentUser;
+      updateData();
+      render();
+    }
+
+    function deleteTask(notaioIndex, sezione, taskIndex) {
+      data.notai[notaioIndex][sezione].splice(taskIndex, 1);
+      updateData();
+      render();
+    }
+
+    function render() {
+      const container = document.getElementById("notai-list");
+      container.innerHTML = "";
+      data.notai.forEach((notaio, idx) => {
+        const box = document.createElement("div");
+        box.className = "notaio";
+        box.innerHTML = `<h3>${notaio.nome}</h3>`;
+
+        ["hardware", "software"].forEach(section => {
+          const sec = document.createElement("div");
+          sec.className = "task-section";
+          sec.innerHTML = `<h4>${section.toUpperCase()}</h4>`;
+
+          notaio[section].forEach((task, tIdx) => {
+            const row = document.createElement("div");
+            row.className = "task";
+            row.innerHTML = `
+              <label><input type="checkbox" ${task.completato ? "checked" : ""} onchange="toggleTask(${idx}, '${section}', ${tIdx})">
+              <span style="text-decoration:${task.completato ? 'line-through' : 'none'}">${task.attivita}</span></label>
+              <small> (${task.modificato_da})</small>
+              <button onclick="deleteTask(${idx}, '${section}', ${tIdx})">❌</button>
+            `;
+            sec.appendChild(row);
+          });
+
+          sec.innerHTML += `
+            <input type="text" id="task-input-${section}-${idx}" placeholder="Nuovo task ${section}" />
+            <button onclick="addTask(${idx}, '${section}')">Aggiungi</button>
+          `;
+
+          box.appendChild(sec);
+        });
+
+        container.appendChild(box);
+      });
+    }
+
+    fetchData();
+  </script>
+</body>
+</html>
